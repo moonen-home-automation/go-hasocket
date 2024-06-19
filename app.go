@@ -11,6 +11,8 @@ import (
 
 var ErrInvalidArgs = errors.New("invalid arguments provided")
 
+var appInstance *App
+
 type App struct {
 	ctx       context.Context
 	ctxCancel context.CancelFunc
@@ -33,12 +35,21 @@ func NewApp(uri, token string) (*App, error) {
 	wsWriter := &ws.Writer{Conn: conn}
 	serviceCaller := services.NewServiceCaller(wsWriter, ctx)
 
-	return &App{
+	appInstance = &App{
 		conn:          conn,
 		wsWriter:      wsWriter,
 		ctx:           ctx,
 		serviceCaller: &serviceCaller,
-	}, nil
+	}
+
+	return appInstance, nil
+}
+
+func GetApp() (*App, error) {
+	if appInstance == nil {
+		return appInstance, errors.New("app not defined")
+	}
+	return appInstance, nil
 }
 
 func (a *App) CallService(sr services.ServiceRequest) (services.ServiceResult, error) {
