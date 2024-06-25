@@ -33,6 +33,8 @@ func NewApp(uri, token string) (*App, error) {
 	}
 
 	wsWriter := &ws.Writer{Conn: conn}
+	go wsWriter.KeepAlive(ctx)
+
 	serviceCaller := services.NewServiceCaller(wsWriter, ctx)
 
 	appInstance = &App{
